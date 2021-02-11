@@ -833,5 +833,25 @@ function useSWR<Data = any, Error = any>(
 
 const SWRConfig = SWRConfigContext.Provider
 
-export { trigger, mutate, SWRConfig }
+type A = typeof useSWR
+type Plugin = (
+  next: A
+) => (
+  key: keyInterface,
+  fn: fetcherFn<any>,
+  config: ConfigInterface<any, any>
+) => responseInterface<any, any>
+
+function useSWRWithPlugins<Data = any, Error = any>(
+  key: keyInterface,
+  fn: fetcherFn<Data>,
+  config: ConfigInterface<Data, Error> & { plugins: Plugin[] }
+): responseInterface<Data, Error> {
+  const { plugins, ...rest } = config
+  const next = plugins.reduceRight((a, b) => b(a), useSWR)
+  // const next = plugins[0](plugins[1](useSWR));
+  return next(key, fn, rest)
+}
+
+export { trigger, mutate, SWRConfig, useSWRWithPlugins, Plugin }
 export default useSWR
