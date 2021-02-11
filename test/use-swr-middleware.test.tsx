@@ -13,14 +13,14 @@ describe('useSWRWithPlugins', () => {
     const loggerPlugin: Plugin = next => (key: any, fn: any, config: any) => {
       // console.log('call logger');
       const result = next(key, fn, config)
-      logs.push(result.data)
+      logs.push({ key, data: result.data })
       return result
     }
     function Page() {
       const { data } = useSWRWithPlugins(
         'useSWRWithPlugins-1',
         key => key + 'SWR',
-        { plugins: [loggerPlugin, decoratePlugin] }
+        { plugins: [decoratePlugin, loggerPlugin] }
       )
       return <div>hello, {data}</div>
     }
@@ -31,6 +31,9 @@ describe('useSWRWithPlugins', () => {
 
     // mounted
     await screen.findByText('hello, [useSWRWithPlugins-1]SWR')
-    expect(logs).toEqual([undefined, '[useSWRWithPlugins-1]SWR'])
+    expect(logs).toEqual([
+      { key: '[useSWRWithPlugins-1]', data: undefined },
+      { key: '[useSWRWithPlugins-1]', data: '[useSWRWithPlugins-1]SWR' }
+    ])
   })
 })
