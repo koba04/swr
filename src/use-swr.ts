@@ -845,10 +845,11 @@ type Plugin = (
 function useSWRWithPlugins<Data = any, Error = any>(
   key: keyInterface,
   fn: fetcherFn<Data>,
-  config: ConfigInterface<Data, Error> & { plugins: Plugin[] }
+  config: ConfigInterface<Data, Error> & { use: Plugin[] }
 ): responseInterface<Data, Error> {
-  const { plugins, ...rest } = config
-  const next = plugins.reduceRight((a, b) => b(a), useSWR)
+  // TODO: should retrieve the config from SWRConfig
+  const { use, ...rest } = config
+  const next = use.reduceRight((a, b) => b(a), useSWR)
   // const next = plugins[0](plugins[1](useSWR));
   return next(key, fn, rest)
 }

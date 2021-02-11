@@ -20,7 +20,7 @@ describe('useSWRWithPlugins', () => {
       const { data } = useSWRWithPlugins(
         'useSWRWithPlugins-1',
         key => key + 'SWR',
-        { plugins: [decoratePlugin, loggerPlugin] }
+        { use: [decoratePlugin, loggerPlugin] }
       )
       return <div>hello, {data}</div>
     }
