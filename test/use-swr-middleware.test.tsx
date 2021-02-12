@@ -3,10 +3,14 @@ import React from 'react'
 import { useSWRWithPlugins, Plugin } from '../src'
 
 describe('useSWRWithPlugins', () => {
-  it('should be able to do like useSWR', async () => {
+  it('should be able to pass plugins', async () => {
     const logs = []
-    const decoratePlugin: Plugin = next => (key: any, fn: any, config: any) => {
-      // console.log('call decorate');
+    const keyDecoratorPlugin: Plugin = next => (
+      key: any,
+      fn: any,
+      config: any
+    ) => {
+      // console.log('call keyDecorator');
       const result = next(`[${key}]`, fn, config)
       return result
     }
@@ -20,7 +24,7 @@ describe('useSWRWithPlugins', () => {
       const { data } = useSWRWithPlugins(
         'useSWRWithPlugins-1',
         key => key + 'SWR',
-        { use: [decoratePlugin, loggerPlugin] }
+        { use: [keyDecoratorPlugin, loggerPlugin] }
       )
       return <div>hello, {data}</div>
     }
