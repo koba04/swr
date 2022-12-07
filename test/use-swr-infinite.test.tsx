@@ -309,6 +309,58 @@ describe('useSWRInfinite', () => {
     expect(requests).toEqual(4) // load page 3
   })
 
+  it('should not revalidate pages when shouldRevalidatePage() returns false', async () => {
+    const key = createKey()
+
+    const logs = []
+    function Page() {
+      const { data, size, setSize } = useSWRInfinite(
+        index => [key, index],
+        ([_, index]) => {
+          logs.push(index)
+          return createResponse(`page ${index}, `)
+        },
+        {
+          revalidateFirstPage: false,
+          // only revalidate the last page
+          shouldRevalidatePage: (page, pageSize) => page === pageSize - 1
+        }
+      )
+
+      return (
+        <div
+          onClick={() => {
+            // load next page
+            setSize(size + 1)
+          }}
+        >
+          data:{data}
+        </div>
+      )
+    }
+
+    renderWithConfig(<Page />)
+    screen.getByText('data:')
+
+    await screen.findByText('data:page 0,') // mounted
+    expect(logs).toEqual([0])
+
+    // load next page
+    fireEvent.click(screen.getByText('data:page 0,'))
+    await screen.findByText('data:page 0, page 1,') // mounted
+    expect(logs).toEqual([0, 1])
+
+    // load next page
+    fireEvent.click(screen.getByText('data:page 0, page 1,'))
+    await screen.findByText('data:page 0, page 1, page 2,') // mounted
+    expect(logs).toEqual([0, 1, 2])
+
+    // load next page
+    fireEvent.click(screen.getByText('data:page 0, page 1, page 2,'))
+    await screen.findByText('data:page 0, page 1, page 2, page 3,') // mounted
+    expect(logs).toEqual([0, 1, 2, 3])
+  })
+
   it('should cache page count', async () => {
     let toggle
 

@@ -31,6 +31,11 @@ export interface SWRInfiniteConfiguration<
   revalidateAll?: boolean
   persistSize?: boolean
   revalidateFirstPage?: boolean
+  shouldRevalidatePage?: (
+    page: number,
+    pageSize: number,
+    pageData: any
+  ) => boolean
   fetcher?: Fn
 }
 

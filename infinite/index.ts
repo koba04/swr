@@ -57,7 +57,8 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
       revalidateAll = false,
       persistSize = false,
       revalidateFirstPage = true,
-      revalidateOnMount = false
+      revalidateOnMount = false,
+      shouldRevalidatePage
     } = config
 
     // The serialized key of the first page. This key will be used to store
@@ -159,6 +160,7 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
           // - `mutate()` called
           // - the cache is missing
           // - it's the first page and it's not the initial render
+          // - `shouldRevalidatePage()` returns true
           // - `revalidateOnMount` is enabled and it's on mount
           // - cache for that page has changed
           const shouldFetchPage =
@@ -166,6 +168,8 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
             forceRevalidateAll ||
             isUndefined(pageData) ||
             (revalidateFirstPage && !i && !isUndefined(dataRef.current)) ||
+            (shouldRevalidatePage &&
+              shouldRevalidatePage(i, pageSize, pageData)) ||
             shouldRevalidateOnMount ||
             (originalData &&
               !isUndefined(originalData[i]) &&
