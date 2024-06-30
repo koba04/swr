@@ -1887,4 +1887,52 @@ describe('useSWRInfinite', () => {
 
     await screen.findByText('data:[apple],banana,[pineapple]')
   })
+
+  it('should support the lazy option', async () => {
+    // mock api
+    const pageData = ['page1', 'page2', 'page3', 'page4', 'page5']
+
+    const key = createKey()
+    function Page() {
+      const { data, size, setSize } = useSWRInfinite(
+        index => [key, index],
+        ([_, index]) => createResponse(pageData[index]),
+        {
+          lazy: true,
+          initialSize: 3
+        }
+      )
+
+      return (
+        <div>
+          <button
+            onClick={() => {
+              setSize(size - 1)
+            }}
+          >
+            prev
+          </button>
+          <button
+            onClick={() => {
+              setSize(pageData.length)
+            }}
+          >
+            last
+          </button>
+          <p>data:{Array.isArray(data) && data.join(',')}</p>
+        </div>
+      )
+    }
+
+    renderWithConfig(<Page />)
+    screen.getByText('data:')
+
+    await screen.findByText('data:,,page3')
+
+    fireEvent.click(screen.getByText('prev'))
+    await screen.findByText('data:,page2,page3')
+
+    fireEvent.click(screen.getByText('last'))
+    await screen.findByText('data:,page2,page3,,page5')
+  })
 })

@@ -65,7 +65,8 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
       persistSize = false,
       revalidateFirstPage = true,
       revalidateOnMount = false,
-      parallel = false
+      parallel = false,
+      lazy = false
     } = config
     const [, , , PRELOAD] = SWRGlobalState.get(defaultCache) as GlobalState
 
@@ -114,6 +115,7 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
     }, [infiniteKey, initialSize])
     // keep the last page size to restore it with the persistSize option
     const lastPageSizeRef = useRef<number>(resolvePageSize())
+    const loadedPagesRef = useRef<number[]>([initialSize - 1])
 
     // When the page key changes, we reset the page size if it's not persisted
     useIsomorphicLayoutEffect(() => {
@@ -157,7 +159,10 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
         const revalidators = []
 
         let previousPageData = null
-        for (let i = 0; i < pageSize; ++i) {
+        const pages = lazy
+          ? loadedPagesRef.current
+          : Array.from({ length: pageSize }).map((_, i) => i)
+        for (const i of pages) {
           const [pageKey, pageArg] = serialize(
             getKey(i, parallel ? null : previousPageData)
           )
@@ -296,6 +301,8 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
 
         changeSize({ _l: size })
         lastPageSizeRef.current = size
+        loadedPagesRef.current.push(size - 1)
+        loadedPagesRef.current.sort((a, b) => a - b)
 
         // Calculate the page data after the size change.
         const data: Data[] = []
