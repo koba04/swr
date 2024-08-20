@@ -1925,4 +1925,48 @@ describe('useSWR - local mutation', () => {
     await screen.findByText('data2: updated')
     await screen.findByText('data3: <page3>')
   })
+
+  it.only('should support mutate tag', async () => {
+    const key1 = createKey()
+    const key2 = createKey()
+    const key3 = createKey()
+
+    let count1 = 0
+    let count2 = 0
+    let count3 = 0
+
+    function Page() {
+      const { data: data1 } = useSWR(key1, () => ++count1, { tag: ['tag1'] })
+      const { data: data2 } = useSWR(key2, () => ++count2, {
+        tag: ['tag1', 'tag2']
+      })
+      const { data: data3 } = useSWR(key3, () => ++count3, { tag: ['tag2'] })
+      const { mutate } = useSWRConfig()
+
+      return (
+        <div>
+          <button
+            onClick={() => {
+              mutate({ tag: 'tag1' })
+            }}
+          >
+            click
+          </button>
+          <p>data1:{data1}</p>
+          <p>data2:{data2}</p>
+          <p>data3:{data3}</p>
+        </div>
+      )
+    }
+    renderWithConfig(<Page />)
+
+    await screen.findByText('data1:1')
+    screen.getByText('data2:1')
+    screen.getByText('data3:1')
+
+    fireEvent.click(screen.getByText('click'))
+    await screen.findByText('data1:2')
+    screen.getByText('data2:2')
+    screen.getByText('data3:1')
+  })
 })

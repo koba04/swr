@@ -625,7 +625,13 @@ export const useSWRHandler = <Data = any, Error = any>(
     initialMountedRef.current = true
 
     // Keep the original key in the cache.
-    setCache({ _k: fnArg })
+    // @ts-expect-error
+    const tag = getConfig().tag
+    if (tag) {
+      console.log({ tag })
+    }
+    // @ts-expect-error
+    setCache({ _k: fnArg, _tag: getConfig().tag })
 
     // Trigger a revalidation
     if (shouldDoInitialRevalidation) {

@@ -85,6 +85,21 @@ export async function internalMutate<Data>(
     return Promise.all(matchedKeys.map(mutateByKey))
   }
 
+  if (_key !== null && typeof _key === 'object' && 'tag' in _key) {
+    const { tag } = _key
+    console.log('tag mutation', tag)
+    const matchedKeys: Key[] = []
+    const it = cache.keys()
+    for (const key of it) {
+      console.log({ key, c: cache.get(key) })
+      // @ts-expect-error
+      if (cache.get(key)?._tag.includes(tag)) {
+        matchedKeys.push(key)
+      }
+    }
+    return Promise.all(matchedKeys.map(mutateByKey))
+  }
+
   return mutateByKey(_key)
 
   async function mutateByKey(_k: Key): Promise<Data | undefined> {
