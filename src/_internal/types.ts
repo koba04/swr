@@ -6,6 +6,7 @@ export type GlobalState = [
   Record<string, [any, number]>, // FETCH: [data, ts]
   Record<string, FetcherResponse<any>>, // PRELOAD
   ScopedMutator, // Mutator
+  any, // TagMutator
   (key: string, value: any, prev: any) => void, // Setter
   (key: string, callback: (current: any, prev: any) => void) => () => void // Subscriber
 ]
@@ -206,6 +207,7 @@ export interface PublicConfiguration<
    * @link https://swr.vercel.app/docs/advanced/react-native#customize-focus-and-reconnect-events
    */
   isVisible: () => boolean
+  tag: string[]
 }
 
 export type FullConfiguration<
@@ -391,6 +393,7 @@ export type State<Data = any, Error = any> = {
   error?: Error
   isValidating?: boolean
   isLoading?: boolean
+  tag?: string[]
 }
 
 export type MutatorFn<Data = any> = (

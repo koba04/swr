@@ -1941,13 +1941,17 @@ describe('useSWR - local mutation', () => {
         tag: ['tag1', 'tag2']
       })
       const { data: data3 } = useSWR(key3, () => ++count3, { tag: ['tag2'] })
-      const { mutate } = useSWRConfig()
+      // const { mutate } = useSWRConfig()
+      const { mutateTag, cache } = useSWRConfig()
+
+      console.log('debug', { data1 })
 
       return (
         <div>
           <button
             onClick={() => {
-              mutate({ tag: 'tag1' })
+              console.log('call mutateTag', { cache })
+              mutateTag('tag1')
             }}
           >
             click
@@ -1958,7 +1962,10 @@ describe('useSWR - local mutation', () => {
         </div>
       )
     }
+
+    console.log('before render')
     renderWithConfig(<Page />)
+    console.log('after render')
 
     await screen.findByText('data1:1')
     screen.getByText('data2:1')
