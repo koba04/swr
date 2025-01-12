@@ -65,7 +65,8 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
       persistSize = false,
       revalidateFirstPage = true,
       revalidateOnMount = false,
-      parallel = false
+      parallel = false,
+      tag
     } = config
     const [, , , PRELOAD] = SWRGlobalState.get(defaultCache) as GlobalState
 
@@ -125,7 +126,10 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
       if (infiniteKey) {
         // If the key has been changed, we keep the current page size if persistSize is enabled
         // Otherwise, we reset the page size to cached pageSize
-        set({ _l: persistSize ? lastPageSizeRef.current : resolvePageSize() })
+        set({
+          _l: persistSize ? lastPageSizeRef.current : resolvePageSize(),
+          _tag: tag
+        })
       }
 
       // `initialSize` isn't allowed to change during the lifecycle
@@ -142,7 +146,7 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
         // get the revalidate context
         const forceRevalidateAll = get()._i
         const shouldRevalidatePage = get()._r
-        set({ _r: UNDEFINED })
+        set({ _r: UNDEFINED, _tag: tag })
 
         // return an array of page data
         const data: Data[] = []

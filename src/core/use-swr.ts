@@ -625,7 +625,7 @@ export const useSWRHandler = <Data = any, Error = any>(
     initialMountedRef.current = true
 
     // Keep the original key in the cache.
-    setCache({ _k: fnArg, tag: getConfig().tag })
+    setCache({ _k: fnArg, _tag: getConfig().tag })
 
     // Trigger a revalidation
     if (shouldDoInitialRevalidation) {

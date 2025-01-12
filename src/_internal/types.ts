@@ -393,7 +393,7 @@ export type State<Data = any, Error = any> = {
   error?: Error
   isValidating?: boolean
   isLoading?: boolean
-  tag?: string[]
+  _tag?: string[]
 }
 
 export type MutatorFn<Data = any> = (

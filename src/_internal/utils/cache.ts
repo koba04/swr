@@ -44,7 +44,6 @@ export const initCache = <Data = any>(
     const EVENT_REVALIDATORS = {}
 
     const mutate = internalMutate.bind(UNDEFINED, provider) as ScopedMutator
-    console.log('bind Provider', provider)
     const mutateTag = internalMutateTag.bind(UNDEFINED, provider)
     let unmount = noop
 
