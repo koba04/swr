@@ -127,8 +127,7 @@ export const infinite = (<Data, Error>(useSWRNext: SWRHook) =>
         // If the key has been changed, we keep the current page size if persistSize is enabled
         // Otherwise, we reset the page size to cached pageSize
         set({
-          _l: persistSize ? lastPageSizeRef.current : resolvePageSize(),
-          _tag: tag
+          _l: persistSize ? lastPageSizeRef.current : resolvePageSize()
         })
       }
 

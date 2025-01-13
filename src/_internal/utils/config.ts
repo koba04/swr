@@ -4,7 +4,8 @@ import type {
   RevalidatorOptions,
   Revalidator,
   ScopedMutator,
-  Cache
+  Cache,
+  TagMutator
 } from '../types'
 
 import { initCache } from './cache'
@@ -45,7 +46,7 @@ const compare = dequal
 const [cache, mutate, mutateTag] = initCache(new Map()) as [
   Cache<any>,
   ScopedMutator,
-  ScopedMutator
+  TagMutator
 ]
 export { cache, mutate, mutateTag, compare }
 

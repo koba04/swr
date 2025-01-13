@@ -6,7 +6,7 @@ export type GlobalState = [
   Record<string, [any, number]>, // FETCH: [data, ts]
   Record<string, FetcherResponse<any>>, // PRELOAD
   ScopedMutator, // Mutator
-  any, // TagMutator
+  TagMutator, // TagMutator
   (key: string, value: any, prev: any) => void, // Setter
   (key: string, callback: (current: any, prev: any) => void) => () => void // Subscriber
 ]
@@ -46,6 +46,7 @@ export type BlockingData<
 export interface InternalConfiguration {
   cache: Cache
   mutate: ScopedMutator
+  mutateTag: TagMutator
 }
 
 /**
@@ -437,6 +438,12 @@ export interface ScopedMutator {
     opts?: boolean | MutatorOptions<Data, T>
   ): Promise<T | undefined>
 }
+
+export type TagMutator = <Data = any, MutationData = Data>(
+  tag: string,
+  data?: MutationData | Promise<MutationData> | MutatorCallback<MutationData>,
+  opts?: boolean | MutatorOptions<Data, MutationData>
+) => Promise<Array<MutationData | undefined>>
 
 /**
  * @typeParam Data - The type of the data related to the key

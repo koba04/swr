@@ -11,7 +11,8 @@ import type {
   RevalidateEvent,
   RevalidateCallback,
   ProviderConfiguration,
-  GlobalState
+  GlobalState,
+  TagMutator
 } from '../types'
 
 const revalidateAllKeys = (
@@ -44,7 +45,7 @@ export const initCache = <Data = any>(
     const EVENT_REVALIDATORS = {}
 
     const mutate = internalMutate.bind(UNDEFINED, provider) as ScopedMutator
-    const mutateTag = internalMutateTag.bind(UNDEFINED, provider)
+    const mutateTag = internalMutateTag.bind(UNDEFINED, provider) as TagMutator
     let unmount = noop
 
     const subscriptions: Record<string, ((current: any, prev: any) => void)[]> =

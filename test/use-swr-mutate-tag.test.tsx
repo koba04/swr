@@ -16,12 +16,12 @@ describe('mutateTag', () => {
     let count4 = 0
 
     function Page() {
-      const { data: data1 } = useSWR(key1, () => ++count1, { tag: ['tag1'] })
-      const { data: data2 } = useSWR(key2, () => ++count2, {
+      const { data: tag1Data } = useSWR(key1, () => ++count1, { tag: ['tag1'] })
+      const { data: tag12Data } = useSWR(key2, () => ++count2, {
         tag: ['tag1', 'tag2']
       })
-      const { data: data3 } = useSWR(key3, () => ++count3, { tag: ['tag2'] })
-      const { data: data4 } = useSWR(key4, () => ++count4)
+      const { data: tag2Data } = useSWR(key3, () => ++count3, { tag: ['tag2'] })
+      const { data: nonTagData } = useSWR(key4, () => ++count4)
       const { mutateTag } = useSWRConfig()
 
       return (
@@ -33,56 +33,55 @@ describe('mutateTag', () => {
           >
             click
           </button>
-          <p>data1:{data1}</p>
-          <p>data2:{data2}</p>
-          <p>data3:{data3}</p>
-          <p>data4:{data4}</p>
+          <p>tag1Data:{tag1Data}</p>
+          <p>tag12Data:{tag12Data}</p>
+          <p>tag2Data:{tag2Data}</p>
+          <p>nonTagData:{nonTagData}</p>
         </div>
       )
     }
 
     renderWithConfig(<Page />)
+    await screen.findByText('tag1Data:1')
+    await screen.findByText('tag12Data:1')
+    await screen.findByText('tag2Data:1')
+    await screen.findByText('nonTagData:1')
 
-    await screen.findByText('data1:1')
-    screen.getByText('data2:1')
-    screen.getByText('data3:1')
-    screen.getByText('data4:1')
-
+    // mutate tag1
     fireEvent.click(screen.getByText('click'))
-    await screen.findByText('data1:2')
-    screen.getByText('data2:2')
-    screen.getByText('data3:1')
-    screen.getByText('data4:1')
+    await screen.findByText('tag1Data:2')
+    await screen.findByText('tag12Data:2')
+    await screen.findByText('tag2Data:1')
+    await screen.findByText('nonTagData:1')
   })
+
   it("should support useSWRInfinite's mutate tag", async () => {
     const key1 = createKey()
     const key2 = createKey()
-
     let count1 = 0
     let count2 = 0
 
-    const infiniteKey1 = createKey()
-    const infiniteKey2 = createKey()
-
+    const infiniteKey1 = 'infinite-' + createKey()
+    const infiniteKey2 = 'infinite-' + createKey()
     let infiniteCount1 = 0
     let infiniteCount2 = 0
 
     function Page() {
-      const { data: data1 } = useSWR(key1, () => createResponse(++count1), {
+      const { data: tag1Data } = useSWR(key1, () => createResponse(++count1), {
         tag: ['tag1']
       })
-      const { data: data2 } = useSWR(key2, () => createResponse(++count2), {
+      const { data: tag2Data } = useSWR(key2, () => createResponse(++count2), {
         tag: ['tag2']
       })
-      const { data: infiniteData1 } = useSWRInfinite(
+      const { data: tag1InfiniteData } = useSWRInfinite(
         index => `page-${index}-${infiniteKey1}`,
         () => createResponse(++infiniteCount1),
-        { tag: ['tag1'] }
+        { tag: ['tag1'], revalidateFirstPage: false }
       )
-      const { data: infiniteData2 } = useSWRInfinite(
+      const { data: tag2InfiniteData } = useSWRInfinite(
         index => `page-${index}-${infiniteKey2}`,
         () => createResponse(++infiniteCount2),
-        { tag: ['tag2'] }
+        { tag: ['tag2'], revalidateFirstPage: false }
       )
 
       const { mutateTag } = useSWRConfig()
@@ -96,26 +95,25 @@ describe('mutateTag', () => {
           >
             click
           </button>
-          <p>data1:{data1}</p>
-          <p>data2:{data2}</p>
-          <p>infiniteData1:{infiniteData1}</p>
-          <p>infiniteData2:{infiniteData2}</p>
+          <p>tag1Data:{tag1Data}</p>
+          <p>tag2Data:{tag2Data}</p>
+          <p>tag1InfiniteData:{tag1InfiniteData}</p>
+          <p>tag2InfiniteData:{tag2InfiniteData}</p>
         </div>
       )
     }
 
     renderWithConfig(<Page />)
+    await screen.findByText('tag1Data:1')
+    await screen.findByText('tag2Data:1')
+    await screen.findByText('tag1InfiniteData:1')
+    await screen.findByText('tag2InfiniteData:1')
 
-    await screen.findByText('data1:1')
-    screen.getByText('data2:1')
-    screen.getByText('infiniteData1:1')
-    screen.getByText('infiniteData2:1')
-
+    // mutate tag1
     fireEvent.click(screen.getByText('click'))
-    await screen.findByText('data1:2')
-    screen.getByText('data2:1')
-    screen.getByText('infiniteData1:2')
-    screen.getByText('infiniteData2:1')
+    await screen.findByText('tag1Data:2')
+    await screen.findByText('tag2Data:1')
+    await screen.findByText('tag1InfiniteData:2')
+    await screen.findByText('tag2InfiniteData:1')
   })
-  it.todo("should support useSWRSubscription's mutate tag")
 })

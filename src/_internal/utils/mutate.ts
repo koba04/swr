@@ -19,6 +19,7 @@ import type {
   Arguments,
   Key
 } from '../types'
+import type { SWRInfiniteCacheValue } from '../../infinite/types'
 
 type KeyFilter = (key?: Arguments) => boolean
 type MutateState<Data> = State<Data, any> & {
@@ -249,6 +250,14 @@ export async function internalMutateTag<Data>(
   for (const key of it) {
     if (_tag && cache.get(key)?._tag?.includes(_tag)) {
       matchedKeys.push(key)
+      if (/^\$inf\$/.test(key)) {
+        const [_, set] = createCacheHelper<
+          Data,
+          SWRInfiniteCacheValue<Data, any>
+        >(cache, key)
+        // mutate all pages
+        set({ _i: true })
+      }
     }
   }
 
